@@ -3,7 +3,8 @@
 // @namespace    http://tampermonkey.net/
 // @version      3.0.1
 // @license      MIT
-// @author
+// @author       https://github.com/unreg
+// @updateURL    https://raw.githubusercontent.com/unreg/lorka-client/master/userscript.js
 // @match        https://www.linux.org.ru/*
 // @grant       none
 // ==/UserScript==
