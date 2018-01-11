@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         LOR panel: karma and scores
+// @name         [DEVEL] LOR panel: karma and scores
 // @namespace    http://tampermonkey.net/
 // @version      3.0.2
 // @license      MIT
