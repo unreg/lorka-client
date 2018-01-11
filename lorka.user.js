@@ -389,6 +389,30 @@
     return component;
   };
 
+  const cTalksIcon = (id, style = {}, ext = {}) => {
+    const component = document.createElement('div');
+    component.id = id;
+    component.style.cssText = _style2cssText(style);
+
+    _appendChild(component, cIcon(
+      `${_project}-talks-icon`,
+      {
+        cursor: 'pointer'
+      },
+      {
+        type: 'fas',
+        size: '1x',
+        icon: 'fire'
+      }
+    ));
+
+    component.addEventListener('click', () => {
+      document.location.href = 'https://www.linux.org.ru/forum/talks/';
+    });
+
+    return component;
+  };
+
   const cScore = (id, style = {}, ext = {}) => {
     const { up, down, vote, item } = ext;
 
@@ -580,6 +604,12 @@
     ));
     _appendChild(component, cTrackerIcon(
       `${_project}-tracker-button`,
+      {
+        'margin-top': '0.5em'
+      }
+    ));
+    _appendChild(component, cTalksIcon(
+      `${_project}-talks-button`,
       {
         'margin-top': '0.5em'
       }
