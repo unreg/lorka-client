@@ -4,7 +4,7 @@
 // @version      3.0.3
 // @license      MIT
 // @author       https://github.com/unreg
-// @updateURL    https://raw.githubusercontent.com/unreg/lorka-client/develop/lorka.user.js
+// @updateURL    https://github.com/unreg/lorka-client/raw/develop/lorka.user.js
 // @match        https://www.linux.org.ru/*
 // @grant       none
 // ==/UserScript==
@@ -24,7 +24,11 @@
       score: {
         title: 'скор',
         state: true
-      }
+      },
+      develmode: {
+        title: 'devel mode',
+        state: false
+      },
     },
     expand: false,
     refer: ''
@@ -47,18 +51,24 @@
     document.getElementsByTagName('head')[0].appendChild(fa);
 
     const _saved = JSON.parse(localStorage.getItem('lorkaStorage') || '{}');
+
+    // Check for new features
+    const items = Object.assign({}, _storage.items, _saved.items);
     _storage = Object.assign({}, _storage, _saved);
+    _setValue({items: items});
 
-    const href = window.location.href.split('/');
+    // Devel mode
+    if (_storage.items.develmode.state) {
+      const href = window.location.href.split('/');
 
-    if ((href.length > 5) &&
-        (href[5]) &&
-        (['forum', 'gallery', 'news'].indexOf(href[3]) !== -1) &&
-        (_storage.refer === 'tracker')) {
-      _goBottomPage();
+      if ((href.length > 5) &&
+          (href[5]) &&
+          (['forum', 'gallery', 'news'].indexOf(href[3]) !== -1) &&
+          (_storage.refer === 'tracker')) {
+        _goBottomPage();
+      }
+      _setValue({'refer': href[3]});
     }
-
-    _setValue({'refer': href[3]});
   };
 
 
@@ -603,18 +613,23 @@
         'margin-top': '0.5em'
       }
     ));
-    _appendChild(component, cTrackerIcon(
-      `${_project}-tracker-button`,
-      {
-        'margin-top': '0.5em'
-      }
-    ));
-    _appendChild(component, cTalksIcon(
-      `${_project}-talks-button`,
-      {
-        'margin-top': '0.5em'
-      }
-    ));
+
+    // Devel mode
+    if (_storage.items.develmode.state) {
+      _appendChild(component, cTrackerIcon(
+        `${_project}-tracker-button`,
+        {
+          'margin-top': '0.5em'
+        }
+      ));
+      _appendChild(component, cTalksIcon(
+        `${_project}-talks-button`,
+        {
+          'margin-top': '0.5em'
+        }
+      ));
+    }
+
     _appendChild(component, cIcon(
       `${_project}-icon-down`,
       {
@@ -755,6 +770,9 @@
   };
 
   /* Injects --- */
+
+  // remove lorksStorage from localStorage
+  // localStorage.removeItem('lorkaStorage');
 
   _init();
   injPanel();
