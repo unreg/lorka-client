@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name         LOR panel: karma and scores
+// @name         [DEVEL] LOR panel: karma and scores
 // @namespace    http://tampermonkey.net/
-// @version      3.0.2
+// @version      3.0.3
 // @license      MIT
 // @author       https://github.com/unreg
-// @updateURL    https://raw.githubusercontent.com/unreg/lorka-client/master/lorka.user.js
+// @updateURL    https://github.com/unreg/lorka-client/raw/develop/lorka.user.js
 // @match        https://www.linux.org.ru/*
 // @grant       none
 // ==/UserScript==
@@ -24,9 +24,14 @@
       score: {
         title: 'скор',
         state: true
-      }
+      },
+      develmode: {
+        title: 'devel mode',
+        state: false
+      },
     },
-    expand: false
+    expand: false,
+    refer: ''
   };
 
 
@@ -46,7 +51,24 @@
     document.getElementsByTagName('head')[0].appendChild(fa);
 
     const _saved = JSON.parse(localStorage.getItem('lorkaStorage') || '{}');
+
+    // Check for new features
+    const items = Object.assign({}, _storage.items, _saved.items);
     _storage = Object.assign({}, _storage, _saved);
+    _setValue({items: items});
+
+    // Devel mode
+    if (_storage.items.develmode.state) {
+      const href = window.location.href.split('/');
+
+      if ((href.length > 5) &&
+          (href[5]) &&
+          (['forum', 'gallery', 'news'].indexOf(href[3]) !== -1) &&
+          (_storage.refer === 'tracker')) {
+        _goBottomPage();
+      }
+      _setValue({'refer': href[3]});
+    }
   };
 
 
@@ -354,6 +376,54 @@
     return component;
   };
 
+  const cTrackerIcon = (id, style = {}, ext = {}) => {
+    const component = document.createElement('div');
+    component.id = id;
+    component.style.cssText = _style2cssText(style);
+
+    _appendChild(component, cIcon(
+      `${_project}-tracker-icon`,
+      {
+        cursor: 'pointer'
+      },
+      {
+        type: 'far',
+        size: '1x',
+        icon: 'list-alt'
+      }
+    ));
+
+    component.addEventListener('click', () => {
+      document.location.href = 'https://www.linux.org.ru/tracker/';
+    });
+
+    return component;
+  };
+
+  const cTalksIcon = (id, style = {}, ext = {}) => {
+    const component = document.createElement('div');
+    component.id = id;
+    component.style.cssText = _style2cssText(style);
+
+    _appendChild(component, cIcon(
+      `${_project}-talks-icon`,
+      {
+        cursor: 'pointer'
+      },
+      {
+        type: 'fas',
+        size: '1x',
+        icon: 'fire'
+      }
+    ));
+
+    component.addEventListener('click', () => {
+      document.location.href = 'https://www.linux.org.ru/forum/talks/';
+    });
+
+    return component;
+  };
+
   const cScore = (id, style = {}, ext = {}) => {
     const { up, down, vote, item } = ext;
 
@@ -543,6 +613,23 @@
         'margin-top': '0.5em'
       }
     ));
+
+    // Devel mode
+    if (_storage.items.develmode.state) {
+      _appendChild(component, cTrackerIcon(
+        `${_project}-tracker-button`,
+        {
+          'margin-top': '0.5em'
+        }
+      ));
+      _appendChild(component, cTalksIcon(
+        `${_project}-talks-button`,
+        {
+          'margin-top': '0.5em'
+        }
+      ));
+    }
+
     _appendChild(component, cIcon(
       `${_project}-icon-down`,
       {
@@ -642,8 +729,9 @@
       return;
     }
 
-    var articles = [...document.querySelectorAll('article.msg')].map(
-      item => item.id.split('-')[1]);
+    var articles = [...document.querySelectorAll('article.msg')].map(item => {
+      return item.id.split('-')[1];
+    });
 
     fetchScores(articles);
   };
@@ -652,18 +740,19 @@
     Object.keys(data).map(user => {
       const karma = data[user];
 
-      [...document.querySelectorAll('a')].filter(
-        item => item.href.indexOf('people') !== -1 && item.text === user).map((item, i) => {
-          const parent = item.parentNode;
+      [...document.querySelectorAll('a')].filter(item => {
+        return item.href.indexOf('people') !== -1 && item.text === user;
+      }).map((item, i) => {
+        const parent = item.parentNode;
 
-          const style = {
-            'border-radius': '0.5em',
-            padding: '0.5em',
-            display: 'inline'
-          };
-          const ext = Object.assign({}, karma, {user: user});
-          _insertAfter(parent, cKarma(`${_project}-karma-${user}`, style, ext), item);
-        });
+        const style = {
+          'border-radius': '0.5em',
+          padding: '0.5em',
+          display: 'inline'
+        };
+        const ext = Object.assign({}, karma, {user: user});
+        _insertAfter(parent, cKarma(`${_project}-karma-${user}`, style, ext), item);
+      });
     });
   };
 
@@ -672,13 +761,18 @@
       return;
     }
 
-    var names = [...document.querySelectorAll('a')].filter(
-      item => item.href.indexOf('people') !== -1).map(item => item.text);
+    var names = [...document.querySelectorAll('a')].filter(item => {
+      return ((item.href.indexOf('people') !== -1) &&
+              (item.href.indexOf('profile') !== -1));
+    }).map(item => item.text);
 
     fetchKarmas(names.filter((item, i) => names.indexOf(item) === i));
   };
 
   /* Injects --- */
+
+  // remove lorksStorage from localStorage
+  // localStorage.removeItem('lorkaStorage');
 
   _init();
   injPanel();
