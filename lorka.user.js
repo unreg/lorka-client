@@ -52,6 +52,7 @@
     const href = window.location.href.split('/');
 
     if ((href.length > 5) &&
+        (href[5]) &&
         (['forum', 'gallery', 'news'].indexOf(href[3]) !== -1) &&
         (_storage.refer === 'tracker')) {
       _goBottomPage();
