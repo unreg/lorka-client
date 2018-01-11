@@ -4,7 +4,7 @@
 // @version      3.0.2
 // @license      MIT
 // @author       https://github.com/unreg
-// @updateURL    https://raw.githubusercontent.com/unreg/lorka-client/master/lorka.user.js
+// @updateURL    https://raw.githubusercontent.com/unreg/lorka-client/develop/lorka.user.js
 // @match        https://www.linux.org.ru/*
 // @grant       none
 // ==/UserScript==
