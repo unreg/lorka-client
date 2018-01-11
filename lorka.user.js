@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         LOR panel: karma and scores
+// @name         [DEVEL] LOR panel: karma and scores
 // @namespace    http://tampermonkey.net/
 // @version      3.0.3
 // @license      MIT
@@ -26,7 +26,8 @@
         state: true
       }
     },
-    expand: false
+    expand: false,
+    refer: ''
   };
 
 
@@ -47,6 +48,16 @@
 
     const _saved = JSON.parse(localStorage.getItem('lorkaStorage') || '{}');
     _storage = Object.assign({}, _storage, _saved);
+
+    const href = window.location.href.split('/');
+
+    if ((href.length > 5) &&
+        (['forum', 'gallery'].indexOf(href[3]) !== -1) &&
+        (_storage.refer === 'tracker')) {
+      _goBottomPage();
+    }
+
+    _setValue({'refer': href[3]});
   };
 
 
