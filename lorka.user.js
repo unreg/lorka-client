@@ -52,7 +52,7 @@
     const href = window.location.href.split('/');
 
     if ((href.length > 5) &&
-        (['forum', 'gallery'].indexOf(href[3]) !== -1) &&
+        (['forum', 'gallery', 'news'].indexOf(href[3]) !== -1) &&
         (_storage.refer === 'tracker')) {
       _goBottomPage();
     }
@@ -653,8 +653,9 @@
       return;
     }
 
-    var articles = [...document.querySelectorAll('article.msg')].map(
-      item => item.id.split('-')[1]);
+    var articles = [...document.querySelectorAll('article.msg')].map(item => {
+      return item.id.split('-')[1];
+    });
 
     fetchScores(articles);
   };
@@ -663,18 +664,19 @@
     Object.keys(data).map(user => {
       const karma = data[user];
 
-      [...document.querySelectorAll('a')].filter(
-        item => item.href.indexOf('people') !== -1 && item.text === user).map((item, i) => {
-          const parent = item.parentNode;
+      [...document.querySelectorAll('a')].filter(item => {
+        return item.href.indexOf('people') !== -1 && item.text === user;
+      }).map((item, i) => {
+        const parent = item.parentNode;
 
-          const style = {
-            'border-radius': '0.5em',
-            padding: '0.5em',
-            display: 'inline'
-          };
-          const ext = Object.assign({}, karma, {user: user});
-          _insertAfter(parent, cKarma(`${_project}-karma-${user}`, style, ext), item);
-        });
+        const style = {
+          'border-radius': '0.5em',
+          padding: '0.5em',
+          display: 'inline'
+        };
+        const ext = Object.assign({}, karma, {user: user});
+        _insertAfter(parent, cKarma(`${_project}-karma-${user}`, style, ext), item);
+      });
     });
   };
 
@@ -683,8 +685,10 @@
       return;
     }
 
-    var names = [...document.querySelectorAll('a')].filter(
-      item => item.href.indexOf('people') !== -1).map(item => item.text);
+    var names = [...document.querySelectorAll('a')].filter(item => {
+      return ((item.href.indexOf('people') !== -1) &&
+              (item.href.indexOf('profile') !== -1));
+    }).map(item => item.text);
 
     fetchKarmas(names.filter((item, i) => names.indexOf(item) === i));
   };
