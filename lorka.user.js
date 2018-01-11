@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LOR panel: karma and scores
 // @namespace    http://tampermonkey.net/
-// @version      3.0.1
+// @version      3.0.2
 // @license      MIT
 // @author       https://github.com/unreg
 // @updateURL    https://raw.githubusercontent.com/unreg/lorka-client/master/lorka.user.js
@@ -72,9 +72,9 @@
   };
 
   const _insertAfter = (parent, child, anchor) => {
-    const prev = parent.querySelectorAll(`#${child.id}`);
-    if (prev.length) {
-      parent.replaceChild(child, prev[0]);
+    const prev = parent.querySelector(`#${child.id}`);
+    if (prev) {
+      parent.replaceChild(child, prev);
     } else {
       parent.insertBefore(child, anchor.nextSibling);
     }
