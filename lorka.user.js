@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LOR panel: karma and scores
 // @namespace    http://tampermonkey.net/
-// @version      3.0.1
+// @version      3.0.2
 // @license      MIT
 // @author       https://github.com/unreg
 // @updateURL    https://raw.githubusercontent.com/unreg/lorka-client/master/lorka.user.js
@@ -72,9 +72,9 @@
   };
 
   const _insertAfter = (parent, child, anchor) => {
-    const prev = parent.querySelectorAll(`#${child.id}`);
-    if (prev.length) {
-      parent.replaceChild(child, prev[0]);
+    const prev = parent.querySelector(`#${child.id}`);
+    if (prev) {
+      parent.replaceChild(child, prev);
     } else {
       parent.insertBefore(child, anchor.nextSibling);
     }
@@ -88,29 +88,38 @@
 
 
   /* API function */
-  const get_score = ids => {
+  const fetchScores = ids => {
     fetch(`https://lorka.sytes.net/scores/?ids=${ids.join(',')}`)
       .then(response => response.json())
       .then(injScoresForTopics)
       .catch(error => console.log(error));
   };
 
-  const vote_comment = (comment_id, vote) => {
-    fetch(`https://lorka.sytes.net/vote/${comment_id}/${vote}`)
+  const fetchKarmas = users => {
+    fetch(`https://lorka.sytes.net/karmas/?names=${users.join(',')}`)
+      .then(response => response.json())
+      .then(injKarmaForUser)
+      .catch(error => console.log(error));
+  };
+
+  const voteTopic = (topic_id, vote) => {
+    fetch(`https://lorka.sytes.net/vote/${topic_id}/${vote}`)
       .then(response => response.json())
       .then(json => {
         const data = {};
-        data[comment_id] = json;
+        data[topic_id] = json;
         injScoresForTopics(data);
       })
       .catch(error => console.log(error));
   };
 
-  const vote_karma = (user, vote = '') => {
+  const voteKarma = (user, vote = '') => {
     fetch(`https://lorka.sytes.net/karma/${user}/${vote}`)
       .then(response => response.json())
       .then(json => {
-        injKarmaForUser(json, user);
+        const data = {};
+        data[user] = json;
+        injKarmaForUser(data);
       })
       .catch(error => console.log(error));
   };
@@ -364,7 +373,7 @@
         type: vote === 'up' ? 'fas' : 'far',
         text: up,
         onclick: () => {
-          vote_comment(item, vote === 'up' ? 'zero' : 'up')
+          voteTopic(item, vote === 'up' ? 'zero' : 'up')
         }
       }
     ));
@@ -391,7 +400,7 @@
         type: vote === 'down' ? 'fas' : 'far',
         text: down,
         onclick: () => {
-          vote_comment(item, vote === 'down' ? 'zero' : 'down')
+          voteTopic(item, vote === 'down' ? 'zero' : 'down')
         }
       }
     ));
@@ -434,7 +443,7 @@
         type: vote === 'up' ? 'fas' : 'far',
         text: up,
         onclick: () => {
-          vote_karma(user, vote === 'up' ? 'zero' : 'up');
+          voteKarma(user, vote === 'up' ? 'zero' : 'up');
         }
       }
     ));
@@ -461,7 +470,7 @@
         type: vote === 'down' ? 'fas' : 'far',
         text: down,
         onclick: () => {
-          vote_karma(user, vote === 'down' ? 'zero' : 'down')
+          voteKarma(user, vote === 'down' ? 'zero' : 'down')
         }
       }
     ));
@@ -636,22 +645,26 @@
     var articles = [...document.querySelectorAll('article.msg')].map(
       item => item.id.split('-')[1]);
 
-    get_score(articles);
+    fetchScores(articles);
   };
 
-  const injKarmaForUser = (data, user) => {
-    [...document.querySelectorAll('a')].filter(
-      item => item.href.indexOf('people') !== -1 && item.text === user).map((item, i) => {
-        const parent = item.parentNode;
+  const injKarmaForUser = data => {
+    Object.keys(data).map(user => {
+      const karma = data[user];
 
-        const style = {
-          'border-radius': '0.5em',
-          padding: '0.5em',
-          display: 'inline'
-        };
-        const ext = Object.assign({}, data, {user: user});
-        _insertAfter(parent, cKarma(`${_project}-karma-${user}`, style, ext), item);
-      });
+      [...document.querySelectorAll('a')].filter(
+        item => item.href.indexOf('people') !== -1 && item.text === user).map((item, i) => {
+          const parent = item.parentNode;
+
+          const style = {
+            'border-radius': '0.5em',
+            padding: '0.5em',
+            display: 'inline'
+          };
+          const ext = Object.assign({}, karma, {user: user});
+          _insertAfter(parent, cKarma(`${_project}-karma-${user}`, style, ext), item);
+        });
+    });
   };
 
   const injKarma = () => {
@@ -662,7 +675,7 @@
     var names = [...document.querySelectorAll('a')].filter(
       item => item.href.indexOf('people') !== -1).map(item => item.text);
 
-    names.filter((item, i) => names.indexOf(item) === i).map(item => vote_karma(item));
+    fetchKarmas(names.filter((item, i) => names.indexOf(item) === i));
   };
 
   /* Injects --- */
