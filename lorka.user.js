@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name         [DEVEL] LOR panel: karma and scores
+// @name         LOR panel: karma and scores
 // @namespace    http://tampermonkey.net/
 // @version      3.0.3
 // @license      MIT
 // @author       https://github.com/unreg
-// @updateURL    https://github.com/unreg/lorka-client/raw/develop/lorka.user.js
+// @updateURL    https://raw.githubusercontent.com/unreg/lorka-client/master/lorka.user.js
 // @match        https://www.linux.org.ru/*
 // @grant       none
 // ==/UserScript==
