@@ -365,6 +365,30 @@
     return component;
   };
 
+  const cTrackerIcon = (id, style = {}, ext = {}) => {
+    const component = document.createElement('div');
+    component.id = id;
+    component.style.cssText = _style2cssText(style);
+
+    _appendChild(component, cIcon(
+      `${_project}-tracker-icon`,
+      {
+        cursor: 'pointer'
+      },
+      {
+        type: 'far',
+        size: '1x',
+        icon: 'list-alt'
+      }
+    ));
+
+    component.addEventListener('click', () => {
+      document.location.href = 'https://www.linux.org.ru/tracker/';
+    });
+
+    return component;
+  };
+
   const cScore = (id, style = {}, ext = {}) => {
     const { up, down, vote, item } = ext;
 
@@ -550,6 +574,12 @@
     ));
     _appendChild(component, cExpandIcon(
       `${_project}-expand-button`,
+      {
+        'margin-top': '0.5em'
+      }
+    ));
+    _appendChild(component, cTrackerIcon(
+      `${_project}-tracker-button`,
       {
         'margin-top': '0.5em'
       }
