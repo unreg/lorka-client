@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         [DEVEL] LOR panel: karma and scores
 // @namespace    http://tampermonkey.net/
-// @version      3.0.3
+// @version      3.0.4
 // @license      MIT
 // @author       https://github.com/unreg
 // @updateURL    https://github.com/unreg/lorka-client/raw/develop/lorka.user.js
@@ -178,12 +178,16 @@
       _storage.expand = true;
       _setValue({ expand: true });
       document.getElementById(`${_project}-panel-body`).style.display = '';
+      document.getElementById(`${_project}-panel-hr`).style.display = '';
+      document.getElementById(`${_project}-panel-header`).style['border-radius'] = '0em 0.75em 0.75em 0em';
     } else {
       icon.classList.remove('fa-angle-right');
       icon.classList.add('fa-angle-left');
       _storage.expand = false;
       _setValue({ expand: false });
       document.getElementById(`${_project}-panel-body`).style.display = 'none';
+      document.getElementById(`${_project}-panel-hr`).style.display = 'none';
+      document.getElementById(`${_project}-panel-header`).style['border-radius'] = '0.75em';
       location.reload();
     }
   }
@@ -660,10 +664,15 @@
       {
         'background-color': 'rgba(0, 0, 0, 0.42)',
         padding: '0.5em',
-        'border-radius': '0.75em',
+        'border-radius': '0.75em 0em 0em 0.75em',
         display: _storage.expand ? '' : 'none'
       }
     ));
+
+    const vr = document.createElement('hr');
+    vr.id = `${_project}-panel-hr`;
+    vr.style.display = _storage.expand ? '' : 'none';
+    _appendChild(component, vr);
 
     _appendChild(component, cPanelHeader(
       `${_project}-panel-header`,
@@ -673,7 +682,7 @@
         'flex-direction': 'column',
         'align-items': 'center',
         padding: '0.5em',
-        'border-radius': '0.75em',
+        'border-radius': _storage.expand ? '0em 0.75em 0.75em 0em' : '0.75em',
       }
     ));
 
