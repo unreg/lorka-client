@@ -25,11 +25,16 @@
         title: 'скор',
         state: true
       },
+      topic_rate: {
+        title: 'ОП рейт',
+        state: true
+      },
       develmode: {
         title: 'devel mode',
         state: false
       },
     },
+    topic_rate: {},
     expand: false,
     refer: ''
   };
@@ -56,6 +61,10 @@
     const items = Object.assign({}, _storage.items, _saved.items);
     _storage = Object.assign({}, _storage, _saved);
     _setValue({items: items});
+
+    if (!_storage.topic_rate) {
+      _setValue({topic_rate: {}});
+    }
 
     // Devel mode
     if (_storage.items.develmode.state) {
@@ -99,6 +108,15 @@
       parent.replaceChild(child, prev);
     } else {
       parent.insertBefore(child, anchor.nextSibling);
+    }
+  };
+
+  const _insertBefore = (parent, child, anchor) => {
+    const prev = parent.querySelector(`#${child.id}`);
+    if (prev) {
+      parent.replaceChild(child, prev);
+    } else {
+      parent.insertBefore(child, anchor);
     }
   };
 
@@ -574,6 +592,83 @@
     return component;
   };
 
+  const cOPRate = (id, style = {}, ext = {}) => {
+    const { topic_id } = ext;
+
+    const component = document.createElement('div');
+    component.id = id;
+    component.style.cssText = _style2cssText(style);
+
+    if (Object.keys(_storage.topic_rate).indexOf(topic_id) !== -1) {
+      var rate = _storage.topic_rate[topic_id].rate;
+    } else {
+      rate = 0;
+    }
+    switch (rate) {
+      case -1:
+        var icon = 'trash-alt';
+        break;
+      case 1:
+        icon = 'check-circle'
+        break;
+      default:
+        var topic_rate = _storage.topic_rate;
+        topic_rate[topic_id] = { rate: rate };
+        _setValue({ topic_rate: topic_rate});
+        icon = 'question-circle';
+    };
+
+    console.log(icon);
+
+    _appendChild(component, cIcon(
+      `${_project}-oprate-${topic_id}-icon`,
+      {
+        cursor: 'pointer'
+      },
+      {
+        type: 'far',
+        size: '2x',
+        icon: icon
+      }
+    ));
+
+    component.addEventListener('click', e => {
+      var rate = _storage.topic_rate[topic_id].rate;
+      switch (rate) {
+        case 0:
+          rate = 1;
+          icon = 'check-circle'
+          break;
+        case 1:
+          rate = -1;
+          icon = 'trash-alt';
+          break;
+        default:
+          rate = 0;
+          icon = 'question-circle';
+      };
+
+      var topic_rate = _storage.topic_rate;
+
+      topic_rate[topic_id] = { rate: rate };
+      _setValue({ topic_rate: topic_rate});
+
+      _appendChild(component, cIcon(
+        `${_project}-oprate-${topic_id}-icon`,
+        {
+          cursor: 'pointer'
+        },
+        {
+          type: 'far',
+          size: '2x',
+          icon: icon
+        }
+      ));
+    });
+
+    return component;
+  };
+
   const cPanelBody = (id, style = {}, ext = {}) => {
     const component = document.createElement('div');
     component.id = id;
@@ -778,6 +873,31 @@
     fetchKarmas(names.filter((item, i) => names.indexOf(item) === i));
   };
 
+  const injTopicRate = () => {
+    if (!_storage.items.topic_rate.state) {
+      return;
+    }
+
+    var articles = [...document.querySelectorAll('article.msg')].filter(article => {
+      return article.id.indexOf('topic') !== -1;
+    }).map(item => {
+      const topic_id = item.id.split('-')[1];
+
+      const favs = item.querySelectorAll('#favs_button');
+      if (favs.length) {
+        const style = {
+          'margin-bottom': '0.5em'
+        };
+        const ext = {
+          topic_id: topic_id
+        };
+        const parent = favs[0].parentNode;
+        _insertBefore(parent, cOPRate(`${_project}-oprate-${topic_id}`, style, ext),
+                      favs[0]);
+      }
+    });
+  };
+
   /* Injects --- */
 
   // remove lorksStorage from localStorage
@@ -787,5 +907,6 @@
   injPanel();
   injScore();
   injKarma();
+  injTopicRate();
 
 })();
