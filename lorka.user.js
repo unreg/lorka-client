@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         [DEVEL] LOR panel: karma and scores
 // @namespace    http://tampermonkey.net/
-// @version      3.0.4
+// @version      3.0.5
 // @license      MIT
 // @author       https://github.com/unreg
 // @updateURL    https://github.com/unreg/lorka-client/raw/develop/lorka.user.js
@@ -472,7 +472,7 @@
         name: `score-${item}-down`,
         icon: 'thumbs-down',
         type: vote === 'down' ? 'fas' : 'far',
-        text: down,
+        text: -down,
         onclick: () => {
           voteTopic(item, vote === 'down' ? 'zero' : 'down')
         }
@@ -542,7 +542,7 @@
         name: `karma-${user}-down`,
         icon: 'thumbs-down',
         type: vote === 'down' ? 'fas' : 'far',
-        text: down,
+        text: -down,
         onclick: () => {
           voteKarma(user, vote === 'down' ? 'zero' : 'down')
         }
