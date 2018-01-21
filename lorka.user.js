@@ -74,7 +74,8 @@
           (href[5]) &&
           (['forum', 'gallery', 'news'].indexOf(href[3]) !== -1) &&
           (_storage.refer === 'tracker')) {
-        _goBottomPage();
+        // _goBottomPage();
+        _goToLastUnread();
       }
       _setValue({'refer': href[3]});
     }
@@ -123,6 +124,28 @@
   const _goTopPage = () => scroll(0, 0);
 
   const _goBottomPage = () => scroll(0, document.body.scrollHeight);
+
+  const _goToLastUnread = () => {
+    const topics = [...document.querySelectorAll('article.msg')].filter(article => {
+      return article.id.indexOf('topic') === 0;
+    });
+
+    if (topics.length === 1) {
+      var topic = topics[0].id.split('-')[1];
+    } else {
+      return;
+    }
+
+    const comments = [...document.querySelectorAll('article.msg')].filter(article => {
+      return article.id.indexOf('comment-') === 0;
+    });
+
+    if (comments.length > 0) {
+      comments[comments.length - 1].scrollIntoView(true);
+    } else {
+      return;
+    }
+  };
 
   /* Miscellaneous --- */
 
@@ -465,7 +488,7 @@
         type: vote === 'up' ? 'fas' : 'far',
         text: up,
         onclick: () => {
-          voteTopic(item, vote === 'up' ? 'zero' : 'up')
+          voteTopic(item, vote === 'up' ? 'zero' : 'up');
         }
       }
     ));
@@ -492,7 +515,7 @@
         type: vote === 'down' ? 'fas' : 'far',
         text: -down,
         onclick: () => {
-          voteTopic(item, vote === 'down' ? 'zero' : 'down')
+          voteTopic(item, vote === 'down' ? 'zero' : 'down');
         }
       }
     ));
@@ -562,7 +585,7 @@
         type: vote === 'down' ? 'fas' : 'far',
         text: -down,
         onclick: () => {
-          voteKarma(user, vote === 'down' ? 'zero' : 'down')
+          voteKarma(user, vote === 'down' ? 'zero' : 'down');
         }
       }
     ));
@@ -609,16 +632,14 @@
         var icon = 'trash-alt';
         break;
       case 1:
-        icon = 'check-circle'
+        icon = 'check-circle';
         break;
       default:
         var topic_rate = _storage.topic_rate;
         topic_rate[topic_id] = { rate: rate };
         _setValue({ topic_rate: topic_rate});
         icon = 'question-circle';
-    };
-
-    console.log(icon);
+    }
 
     _appendChild(component, cIcon(
       `${_project}-oprate-${topic_id}-icon`,
@@ -637,7 +658,7 @@
       switch (rate) {
         case 0:
           rate = 1;
-          icon = 'check-circle'
+          icon = 'check-circle';
           break;
         case 1:
           rate = -1;
@@ -646,7 +667,7 @@
         default:
           rate = 0;
           icon = 'question-circle';
-      };
+      }
 
       var topic_rate = _storage.topic_rate;
 
@@ -879,7 +900,7 @@
     }
 
     var articles = [...document.querySelectorAll('article.msg')].filter(article => {
-      return article.id.indexOf('topic') !== -1;
+      return article.id.indexOf('topic-') === 0;
     }).map(item => {
       const topic_id = item.id.split('-')[1];
 
